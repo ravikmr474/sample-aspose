@@ -101,12 +101,12 @@ public class FileMerge {
 		Map<String, OutputStream> imageOutputStreamMap = new HashMap<String, OutputStream>();
 		try {
 
-//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//			workbookFile.write(bos);
-//			byte[] barray = bos.toByteArray();
-//			InputStream is = new ByteArrayInputStream(barray);
-//
-//			Workbook workbook = new Workbook(is);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			workbookFile.write(bos);
+			byte[] barray = bos.toByteArray();
+			InputStream is = new ByteArrayInputStream(barray);
+
+			Workbook workbook = new Workbook(is);
 //			FontConfigs.setDefaultFontName("Arial");
 //			workbook.calculateFormula();
 //			Style defaultStyle = workbook.getDefaultStyle();
@@ -123,7 +123,6 @@ public class FileMerge {
 //
 //			int sheetCount = worksheets.getCount();
 			
-			Workbook workbook = new Workbook("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\My-excel.xlsx");
 			FontConfigs.setDefaultFontName("Arial");
 			workbook.calculateFormula();
 			Style defaultStyle = workbook.getDefaultStyle();
@@ -134,7 +133,7 @@ public class FileMerge {
 			defaultStyle.getFont().setBold(false);
 			workbook.setDefaultStyle(defaultStyle);
 			
-			workbook.getWorksheets().get(0).getPageSetup().setPrintArea("A1:A27:B1:B27");
+			workbook.getWorksheets().get(0).getPageSetup().setPrintArea("A5:A31:B5:B31");
 			workbook.getWorksheets().get(0).getPageSetup().setLeftMargin(0);
 			workbook.getWorksheets().get(0).getPageSetup().setRightMargin(0);
 			workbook.getWorksheets().get(0).getPageSetup().setTopMargin(0);
@@ -147,8 +146,8 @@ public class FileMerge {
 			options.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			options.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			options.setHorizontalResolution(100);
-			options.setVerticalResolution(100);
+			options.setHorizontalResolution(180);
+			options.setVerticalResolution(180);
 			options.setTiffCompression(TiffCompression.COMPRESSION_LZW);
 			options.setQuality(100);
 			options.setCheckWorkbookDefaultFont(true);
@@ -156,7 +155,6 @@ public class FileMerge {
 			
 			SheetRender sr = new SheetRender(workbook.getWorksheets().get(0), options);
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.png");
 			sr.toImage(0, outStream);
 			imageOutputStreamMap.put("sheet_1_image", outStream);
 //			for (int index = 0; index < sheetCount; index++) {
@@ -195,7 +193,6 @@ public class FileMerge {
 //							workbookName.getPageSetup().setPrintArea(imagePrintArea);
 //							sr = new SheetRender(workbookName, options);
 //							outStream = new ByteArrayOutputStream();
-//							sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\aspose-lib\\sheet_image.emf");
 //							imageOutputStreamMap.put("sheet_1_image", outStream);
 //						} catch (Exception e) {
 //							e.printStackTrace();
