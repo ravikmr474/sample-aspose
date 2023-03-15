@@ -56,20 +56,27 @@ public class FileMerge {
 								ByteArrayOutputStream bout;
 								ByteArrayInputStream bin;
 								InputStream imageInputStream = getInputStream(imageURLMap.get(text2));
-								image = ImageIO.read(imageInputStream);
-								Dimension dim = new Dimension(image.getWidth(), image.getHeight());
-								// Dimension width
-								double width = dim.getWidth();
-								double height = dim.getHeight();
-								double scaling = 1.0;
-								if (width > 72 * 6.5)
-									scaling = (72 * 6.5) / width;
-								bout = new ByteArrayOutputStream();
-								ImageIO.write(image, "png", bout);
-								bout.flush();
-								bin = new ByteArrayInputStream(bout.toByteArray());
-								r.addPicture(bin, XWPFDocument.PICTURE_TYPE_PNG, "", Units.toEMU(width*scaling),
-										Units.toEMU(height*scaling));
+								
+//								image = ImageIO.read(imageInputStream);
+//								Dimension dim = new Dimension(image.getWidth(), image.getHeight());
+//								// Dimension width
+//								double width = dim.getWidth();
+//								double height = dim.getHeight();
+//								double scaling = 1.0;
+//								if (width > 72 * 6.5)
+//									scaling = (72 * 6.5) / width;
+//								bout = new ByteArrayOutputStream();
+//								ImageIO.write(image, "png", bout);
+//								bout.flush();
+//								bin = new ByteArrayInputStream(bout.toByteArray());
+//								width = width*scaling;
+//								height = height*scaling;
+//								System.out.println("width: = "+width +" height"+height);
+								
+								double width = 467.99999999999994;
+								double height = 424.08740359897166;
+								r.addPicture(imageInputStream, XWPFDocument.PICTURE_TYPE_EMF, "", Units.toEMU(width),
+										Units.toEMU(height));
 								r.getCTR().getDrawingArray(0).getInlineArray(0).addNewCNvGraphicFramePr()
 										.addNewGraphicFrameLocks().setNoChangeAspect(true);
 								text = text.replace(text2, "");
@@ -141,7 +148,7 @@ public class FileMerge {
 			
 			ImageOrPrintOptions options = new ImageOrPrintOptions();
 			options.setOnePagePerSheet(true);
-			options.setImageType(ImageType.PNG);
+			options.setImageType(ImageType.EMF);
 //			options.setImageType(ImageType.JPEG);
 			options.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			options.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
@@ -151,8 +158,8 @@ public class FileMerge {
 			options.setTiffCompression(TiffCompression.COMPRESSION_LZW);
 			options.setQuality(100);
 			options.setCheckWorkbookDefaultFont(true);
-			options.setDefaultFont("Arial");
-			
+			options.setDefaultFont("/usr/share/fonts/Arial");
+			options.setDesiredSize(778, 705);
 			SheetRender sr = new SheetRender(workbook.getWorksheets().get(0), options);
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			sr.toImage(0, outStream);
