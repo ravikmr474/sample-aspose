@@ -265,6 +265,7 @@ public class FileMerge {
 		ChromeOptions options1 = new ChromeOptions();
 //		options1.setHeadless(true);
 		options1.addArguments("--remote-allow-origins=*");
+		options1.addArguments("--headless");
 //		options1.addArguments("start-maximized"); // open Browser in maximized mode
 //		options1.addArguments("disable-infobars"); // disabling infobars
 //		options1.addArguments("--disable-extensions"); // disabling extensions
