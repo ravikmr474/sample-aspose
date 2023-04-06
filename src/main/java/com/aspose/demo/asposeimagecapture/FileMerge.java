@@ -259,7 +259,7 @@ public class FileMerge {
 //			e1.printStackTrace();
 //		}
 		
-		System.setProperty("webdriver.chrome.driver", "src/main/resources/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
 		
 		ChromeOptions options1 = new ChromeOptions();
 		options1.addArguments("--remote-allow-origins=*");
