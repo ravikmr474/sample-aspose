@@ -299,7 +299,7 @@ public class FileMerge {
         BufferedImage image = ImageIO.read(isFromFirstData);
         
         
-        BufferedImage croppedImage = image.getSubimage(10, 70, 696, 694);	
+        BufferedImage croppedImage = image.getSubimage(10, 70, 696, 500);	
         ByteArrayOutputStream baos = new ByteArrayOutputStream();;
         ImageIO.write(croppedImage, "png", baos);
         Map<String, OutputStream> imageOutputStreamMap = new HashMap<String, OutputStream>();
