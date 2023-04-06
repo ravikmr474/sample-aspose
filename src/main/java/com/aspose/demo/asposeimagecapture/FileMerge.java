@@ -265,10 +265,10 @@ public class FileMerge {
 		ChromeOptions options1 = new ChromeOptions();
 //		options1.setHeadless(true);
 		options1.addArguments("--remote-allow-origins=*");
-		options1.addArguments("start-maximized"); // open Browser in maximized mode
-		options1.addArguments("disable-infobars"); // disabling infobars
-		options1.addArguments("--disable-extensions"); // disabling extensions
-		options1.addArguments("--disable-gpu"); // applicable to windows os only
+//		options1.addArguments("start-maximized"); // open Browser in maximized mode
+//		options1.addArguments("disable-infobars"); // disabling infobars
+//		options1.addArguments("--disable-extensions"); // disabling extensions
+//		options1.addArguments("--disable-gpu"); // applicable to windows os only
 		options1.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 		options1.addArguments("--no-sandbox"); // Bypass OS security model
 		WebDriver driver = null;
