@@ -278,7 +278,7 @@ public class FileMerge {
 			driver.get("https://s3.amazonaws.com/seamlessserver/signinlogo/fsimages/htmlFile.html");
 			driver.manage().window().maximize();
 		} catch (Exception e) {
-			System.out.println("MEsage:-- "+e.getMessage());
+			System.out.println("Exception Message:-- "+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -299,7 +299,7 @@ public class FileMerge {
         BufferedImage image = ImageIO.read(isFromFirstData);
         
         
-        BufferedImage croppedImage = image.getSubimage(10, 70, 696, 500);	
+        BufferedImage croppedImage = image.getSubimage(5, 50, 560, 550);	
         ByteArrayOutputStream baos = new ByteArrayOutputStream();;
         ImageIO.write(croppedImage, "png", baos);
         Map<String, OutputStream> imageOutputStreamMap = new HashMap<String, OutputStream>();
