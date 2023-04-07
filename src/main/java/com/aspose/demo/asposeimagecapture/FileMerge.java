@@ -1,9 +1,7 @@
 package com.aspose.demo.asposeimagecapture;
 
 import java.awt.Dimension;
-import java.awt.HeadlessException;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,10 +12,8 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.util.IOUtils;
@@ -26,11 +22,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
@@ -42,32 +36,20 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.aspose.cells.Cell;
-import com.aspose.cells.Cells;
 import com.aspose.cells.FontConfigs;
 import com.aspose.cells.ImageOrPrintOptions;
 import com.aspose.cells.ImageType;
-import com.aspose.cells.Range;
 import com.aspose.cells.SheetRender;
 import com.aspose.cells.Style;
 import com.aspose.cells.TiffCompression;
 import com.aspose.cells.Workbook;
-import com.aspose.cells.Worksheet;
-import com.aspose.cells.WorksheetCollection;
-import com.aspose.words.FolderFontSource;
-import com.aspose.words.FontSettings;
-import com.aspose.words.FontSourceBase;
-import com.aspose.words.SystemFontSource;
-import com.spire.xls.PageSetup;
 import com.spire.xls.core.spreadsheet.HTMLOptions;
 
 public class FileMerge {
 
 	public static InputStream writeImage(InputStream inputStream, XSSFWorkbook workbook) throws IOException {
 
-		Map<String, OutputStream> imageURLMap = takeSnapshotFromExcelSpire(workbook);
+		Map<String, OutputStream> imageURLMap = captureImageFromExcelSpire(workbook);
 		XWPFDocument doc = new XWPFDocument(inputStream);
 		try {
 			for (XWPFParagraph p : doc.getParagraphs()) {
@@ -239,19 +221,20 @@ public class FileMerge {
 
 	public static Map<String, OutputStream> takeSnapshotFromExcelSpire(XSSFWorkbook workbookFile) throws IOException {
 		
-//		com.spire.xls.Workbook workbook = new com.spire.xls.Workbook();	
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		workbookFile.write(bos);
-//		byte[] barray = bos.toByteArray();
-//		InputStream is = new ByteArrayInputStream(barray);
-//		workbook.loadFromStream(is);
-//
-//		com.spire.xls.Worksheet sheet = workbook.getWorksheets().get(0);
-//
-//		HTMLOptions options = new HTMLOptions();	
-//		ByteArrayOutputStream outputStreamHTML = new ByteArrayOutputStream();
+		com.spire.xls.Workbook workbook = new com.spire.xls.Workbook();	
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		workbookFile.write(bos);
+		byte[] barray = bos.toByteArray();
+		InputStream is = new ByteArrayInputStream(barray);
+		workbook.loadFromStream(is);
+
+		com.spire.xls.Worksheet sheet = workbook.getWorksheets().get(0);
+
+		HTMLOptions options = new HTMLOptions();	
+		ByteArrayOutputStream outputStreamHTML = new ByteArrayOutputStream();
 //		sheet.saveToHtml(outputStreamHTML, options);
-////		sheet.saveToHtml("src/main/resources/htmlFile.html", options);
+		sheet.saveToHtml("src/main/resources/htmlFile.html", options);
+		
 //		try {
 //			uploadFile("htmlFile.html", outputStreamHTML);
 //			downloadFile();
@@ -260,7 +243,7 @@ public class FileMerge {
 //		}
 		
 //		System.setProperty("webdriver.chrome.driver", "src/main/resources/chromedriver.exe"); // windows
-		System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver"); // linux
+//		System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver"); // linux
 		
 		ChromeOptions options1 = new ChromeOptions();
 //		options1.setHeadless(true);
@@ -299,13 +282,124 @@ public class FileMerge {
         BufferedImage image = ImageIO.read(isFromFirstData);
         
         
-        BufferedImage croppedImage = image.getSubimage(5, 50, 560, 550);	
+        BufferedImage croppedImage = image.getSubimage(5, 50, 560, 550);
+        
+        File outputFile1 = new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Output12345.png");
+        ImageIO.write(croppedImage, "png", outputFile1);
+        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();;
         ImageIO.write(croppedImage, "png", baos);
         Map<String, OutputStream> imageOutputStreamMap = new HashMap<String, OutputStream>();
         imageOutputStreamMap.put("sheet_1_image", baos);
         System.out.println("Done...done again");
         driver.quit();
+		return imageOutputStreamMap;
+	}
+	
+	public static Map<String, OutputStream> captureImageFromExcelSpire(XSSFWorkbook workbookFile) throws IOException {
+		
+		Map<String, OutputStream> imageOutputStreamMap = new HashMap<String, OutputStream>();
+		
+		com.spire.xls.Workbook workbook = new com.spire.xls.Workbook();	
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		workbookFile.write(bos);
+		byte[] barray = bos.toByteArray();
+		InputStream is = new ByteArrayInputStream(barray);
+		workbook.loadFromStream(is);
+		
+		String zipDirName = "/tmp/Financial_Report/";
+		int sheetCount = workbook.getWorksheets().getCount();	
+		HTMLOptions options = null;
+		
+//		System.setProperty("webdriver.chrome.driver", "src/main/resources/chromedriver.exe"); // windows
+		System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver"); // linux
+		
+		ChromeOptions options1 = new ChromeOptions();
+		options1.addArguments("--remote-allow-origins=*");
+		options1.addArguments("--headless");
+		options1.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+		options1.addArguments("--no-sandbox"); // Bypass OS security model
+		
+		WebDriver driver = null;
+		File screenshot = null;
+		ByteArrayOutputStream outputStream = null;
+		InputStream isFromFirstData = null;
+		BufferedImage image = null;
+		BufferedImage croppedImage = null;
+		ByteArrayOutputStream baos = null;
+		ByteArrayOutputStream outputStreamHTML = null;
+		for(int count =0; count<sheetCount;count++) {			
+			com.spire.xls.Worksheet worksheet = workbook.getWorksheets().get(count);
+			
+			switch (worksheet.getName()) {
+			case "sheet1":
+				
+				options = new HTMLOptions();	
+				outputStreamHTML = new ByteArrayOutputStream();
+//				sheet.saveToHtml(outputStreamHTML, options);
+//				worksheet.saveToHtml(zipDirName+"sheet1.html", options);
+				
+//				worksheet.saveToHtml(outputStreamHTML, options);
+//				uploadFile("sheet1.html", outputStreamHTML);
+				try {
+					driver = new ChromeDriver(options1);
+					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet1.html");
+					driver.manage().window().maximize();
+				} catch (Exception e) {
+					System.out.println("Exception Message:-- "+e.getMessage());
+					e.printStackTrace();
+				}
+						        
+		        // Get the entire page screenshot
+		        screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		        outputStream = new ByteArrayOutputStream();
+		        FileUtils.copyFile(screenshot, outputStream);
+		        isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
+		        
+		        image = ImageIO.read(isFromFirstData);
+		        croppedImage = image.getSubimage(5, 45, 520, 500);		        
+		        baos = new ByteArrayOutputStream();;
+		        ImageIO.write(croppedImage, "png", baos);
+		        
+		        imageOutputStreamMap.put("sheet_1_image", baos);
+				
+				break;
+			case "sheet2":
+				
+				options = new HTMLOptions();	
+				outputStreamHTML = new ByteArrayOutputStream();
+//				sheet.saveToHtml(outputStreamHTML, options);
+//				worksheet.saveToHtml("C:\\tmp\\Financial_Report\\sheet2.html", options);
+//				worksheet.saveToHtml(outputStreamHTML, options);
+//				uploadFile("sheet2.html", outputStreamHTML);
+				try {
+					driver = new ChromeDriver(options1);
+					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet2.html");
+					driver.manage().window().maximize();
+				} catch (Exception e) {
+					System.out.println("Exception Message:-- "+e.getMessage());
+					e.printStackTrace();
+				}
+						        
+		        screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		        outputStream = new ByteArrayOutputStream();
+		        try {
+					FileUtils.copyFile(screenshot, outputStream);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		        isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
+		        image = ImageIO.read(isFromFirstData);		                
+		        
+		        croppedImage = image.getSubimage(5, 50, 530, 510);
+		        
+		        baos = new ByteArrayOutputStream();;
+		        ImageIO.write(croppedImage, "png", baos);
+		        imageOutputStreamMap.put("sheet_2_image", baos);
+				break;
+			}
+		}
+		
 		return imageOutputStreamMap;
 	}
 	

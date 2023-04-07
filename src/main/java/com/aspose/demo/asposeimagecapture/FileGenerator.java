@@ -27,15 +27,17 @@ public class FileGenerator {
 
 		InputStream excelFile = FileGenerator.class.getClassLoader().getResourceAsStream("My-excel.xlsx");
 		XSSFWorkbook workbook = new XSSFWorkbook(excelFile);
-		XSSFSheet spreadsheet = workbook.getSheet("sheet_1_image");
-		spreadsheet.setMargin(Sheet.LeftMargin, 0.0);
-		spreadsheet.setMargin(Sheet.RightMargin, 0.0);
-		spreadsheet.setMargin(Sheet.TopMargin, 0.0);
-		spreadsheet.setMargin(Sheet.BottomMargin, 0.0);
+//		XSSFSheet spreadsheet = workbook.getSheet("sheet1");
+//		spreadsheet.setMargin(Sheet.LeftMargin, 0.0);
+//		spreadsheet.setMargin(Sheet.RightMargin, 0.0);
+//		spreadsheet.setMargin(Sheet.TopMargin, 0.0);
+//		spreadsheet.setMargin(Sheet.BottomMargin, 0.0);
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try {
 			DocumentBuilder builder = new DocumentBuilder(doc);
 			builder.writeln("sheet_1_image");
+			
+			builder.writeln("sheet_2_image");
 			InputStream inputStream = FileMerge.writeImage(convertToInputStream(doc), workbook);
 			int available = inputStream.available();
 			System.out.println("available:-  "+available);
