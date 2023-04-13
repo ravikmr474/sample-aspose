@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.aspose.words.BreakType;
 import com.aspose.words.Document;
 import com.aspose.words.DocumentBuilder;
 import com.aspose.words.License;
@@ -93,6 +94,8 @@ public class FileGenerator {
 			DocumentBuilder builder = new DocumentBuilder(doc);
 	        Map<String, InputStream> imageURLMap = FileMerge.captureImageFromExcelAspose(workbook);
 	        builder.insertImage(imageURLMap.get("image_sheet_1"));
+	        builder.insertBreak(BreakType.PAGE_BREAK);
+	        builder.insertImage(imageURLMap.get("image_sheet_2"));
 			
 			InputStream inputStream =convertToInputStream(doc);
 			byte[] buffer = new byte[1000];

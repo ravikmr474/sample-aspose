@@ -569,17 +569,23 @@ public class FileMerge {
 		options.setDefaultFont("sans-serif");
 		
 		SheetRender sr = new SheetRender(workbook.getWorksheets().get(0), options);
-//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.bmp");
-//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.emf");
-//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.png");
-//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.jpeg");
 		
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		sr.toImage(0, outStream);
-		System.out.println("Done");
 		
 		InputStream isFromFirstData = new ByteArrayInputStream(outStream.toByteArray()); 
 		imageOutputStreamMap.put("image_sheet_1", isFromFirstData);
+		
+		workbook.getWorksheets().get(1).getPageSetup().setPrintArea("A5:A26:B5:B26");
+		
+		sr = new SheetRender(workbook.getWorksheets().get(1), options);
+		
+		outStream = new ByteArrayOutputStream();
+		sr.toImage(0, outStream);
+		
+		isFromFirstData = new ByteArrayInputStream(outStream.toByteArray()); 
+		imageOutputStreamMap.put("image_sheet_2", isFromFirstData);
+		
 		return imageOutputStreamMap;
 	}
 	
