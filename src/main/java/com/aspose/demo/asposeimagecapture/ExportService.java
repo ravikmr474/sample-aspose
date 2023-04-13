@@ -24,10 +24,33 @@ public class ExportService {
 		zipOutputStream.flush();
 		try {
 
-			ZipEntry docx = new ZipEntry("document.docx");
+			ZipEntry docx = new ZipEntry("sample.docx");
 			zipOutputStream.putNextEntry(docx);
 			FileGenerator fsDocxGene = new FileGenerator();
 			ByteArrayOutputStream docxFileOutputStream = fsDocxGene.createDocxFile();
+
+			docxFileOutputStream.writeTo(zipOutputStream);
+			zipOutputStream.closeEntry();
+			zipOutputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		doDownload(zipDirName, response);
+	}
+	
+	public void downloadReport(String file, HttpServletResponse response) throws Exception {
+		String fileName = "Report.zip";
+		String zipDirName = "/tmp/" + fileName;
+		FileOutputStream fileOutputStream = new FileOutputStream(zipDirName);
+		ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+		zipOutputStream.flush();
+		try {
+
+			ZipEntry docx = new ZipEntry("sample.docx");
+			zipOutputStream.putNextEntry(docx);
+			FileGenerator fsDocxGene = new FileGenerator();
+			ByteArrayOutputStream docxFileOutputStream = fsDocxGene.createDocxFileReport(file);
 
 			docxFileOutputStream.writeTo(zipOutputStream);
 			zipOutputStream.closeEntry();

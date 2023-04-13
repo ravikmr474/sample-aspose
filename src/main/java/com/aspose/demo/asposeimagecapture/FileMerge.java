@@ -6,12 +6,14 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -22,9 +24,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
@@ -43,60 +48,78 @@ import com.aspose.cells.SheetRender;
 import com.aspose.cells.Style;
 import com.aspose.cells.TiffCompression;
 import com.aspose.cells.Workbook;
+import com.spire.xls.PageOrientationType;
+import com.spire.xls.PageSetup;
+import com.spire.xls.PaperSizeType;
+import com.spire.xls.Worksheet;
 import com.spire.xls.core.spreadsheet.HTMLOptions;
+
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+import ru.yandex.qatools.ashot.coordinates.Coords;
+import ru.yandex.qatools.ashot.coordinates.WebDriverCoordsProvider;
+import ru.yandex.qatools.ashot.cropper.ImageCropper;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
 public class FileMerge {
 
-	public static InputStream writeImage(InputStream inputStream, XSSFWorkbook workbook) throws IOException {
+//	public static InputStream writeImage(InputStream inputStream, XSSFWorkbook workbook) throws IOException {
 
-		Map<String, OutputStream> imageURLMap = captureImageFromExcelSpire(workbook);
-		XWPFDocument doc = new XWPFDocument(inputStream);
-		try {
-			for (XWPFParagraph p : doc.getParagraphs()) {
-				String text2 = p.getText().trim();
-					List<XWPFRun> runs = p.getRuns();
-					if (runs != null) {
-						for (XWPFRun r : runs) {
-							String text = r.getText(0);
-							if (text != null) {
-								BufferedImage image;
-								ByteArrayOutputStream bout;
-								ByteArrayInputStream bin;
-								InputStream imageInputStream = getInputStream(imageURLMap.get(text2));
-								image = ImageIO.read(imageInputStream);
-								Dimension dim = new Dimension(image.getWidth(), image.getHeight());
-								// Dimension width
-								double width = dim.getWidth();
-								double height = dim.getHeight();
-								double scaling = 1.0;
-								if (width > 72 * 6.5)
-									scaling = (72 * 6.5) / width;
-								bout = new ByteArrayOutputStream();
-								ImageIO.write(image, "png", bout);
-								bout.flush();
-								bin = new ByteArrayInputStream(bout.toByteArray());
-								r.addPicture(bin, XWPFDocument.PICTURE_TYPE_PNG, "", Units.toEMU(width*scaling),
-										Units.toEMU(height*scaling));
-								r.getCTR().getDrawingArray(0).getInlineArray(0).addNewCNvGraphicFramePr()
-										.addNewGraphicFrameLocks().setNoChangeAspect(true);
-								text = text.replace(text2, "");
-								r.setText(text, 0);
-							}
-							break;
-						}
-					}
-			}
-		} catch (Exception e) {
-			System.out.println("Exception: " + e);
-			e.printStackTrace();
-		}
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		doc.write(outStream);
-		byte[] docBytes = outStream.toByteArray();
+//		Map<String, BufferedImage> imageURLMap = captureImageFromExcelSpire(workbook);
+//		XWPFDocument doc = new XWPFDocument(inputStream);
+//		try {
+//			for (XWPFParagraph p : doc.getParagraphs()) {
+//				String text2 = p.getText().trim();
+//					List<XWPFRun> runs = p.getRuns();
+//					if (runs != null) {
+//						for (XWPFRun r : runs) {
+//							String text = r.getText(0);
+//							if (text != null) {
+//								BufferedImage image;
+//								ByteArrayOutputStream bout;
+//								ByteArrayInputStream bin;
+//								InputStream imageInputStream = getInputStream(imageURLMap.get(text2));
+//								
+////								image = ImageIO.read(imageInputStream);
+////								Dimension dim = new Dimension(image.getWidth(), image.getHeight());
+////								// Dimension width
+////								double width = dim.getWidth();
+////								double height = dim.getHeight();
+////								double scaling = 1.0;
+////								if (width > 72 * 6.5)
+////									scaling = (72 * 6.5) / width;
+////								bout = new ByteArrayOutputStream();
+////								ImageIO.write(image, "png", bout);
+////								bout.flush();
+////								bin = new ByteArrayInputStream(bout.toByteArray());
+//								double	width = 468.0;
+//								double	height = 450.0;
+//								System.out.println("width:- "+width+" height:- "+height);
+//								 File fileImage = new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Output12345.png");
+//							        FileInputStream imageData
+//							            = new FileInputStream(fileImage);
+//								r.addPicture(imageData, XWPFDocument.PICTURE_TYPE_PNG, "", Units.toEMU(width),
+//										Units.toEMU(height));
+//								r.getCTR().getDrawingArray(0).getInlineArray(0).addNewCNvGraphicFramePr()
+//										.addNewGraphicFrameLocks().setNoChangeAspect(true);
+//								text = text.replace(text2, "");
+//								r.setText(text, 0);
+//							}
+//							break;
+//						}
+//					}
+//			}
+//		} catch (Exception e) {
+//			System.out.println("Exception: " + e);
+//			e.printStackTrace();
+//		}
+//		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+//		doc.write(outStream);
+//		byte[] docBytes = outStream.toByteArray();
+//
+//		return new ByteArrayInputStream(docBytes);
 
-		return new ByteArrayInputStream(docBytes);
-
-	}
+//	}
 
 	public static InputStream getInputStream(OutputStream outputStream) {
 		InputStream isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
@@ -296,9 +319,9 @@ public class FileMerge {
 		return imageOutputStreamMap;
 	}
 	
-	public static Map<String, OutputStream> captureImageFromExcelSpire(XSSFWorkbook workbookFile) throws IOException {
+	public static Map<String, BufferedImage> captureImageFromExcelSpire(XSSFWorkbook workbookFile) throws IOException {
 		
-		Map<String, OutputStream> imageOutputStreamMap = new HashMap<String, OutputStream>();
+		Map<String, BufferedImage> imageOutputStreamMap = new HashMap<String, BufferedImage>();
 		
 		com.spire.xls.Workbook workbook = new com.spire.xls.Workbook();	
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -307,7 +330,7 @@ public class FileMerge {
 		InputStream is = new ByteArrayInputStream(barray);
 		workbook.loadFromStream(is);
 		
-		String zipDirName = "/tmp/Financial_Report/";
+//		String zipDirName = "/tmp/Financial_Report/";
 		int sheetCount = workbook.getWorksheets().getCount();	
 		HTMLOptions options = null;
 		
@@ -319,7 +342,7 @@ public class FileMerge {
 		options1.addArguments("--headless");
 		options1.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 		options1.addArguments("--no-sandbox"); // Bypass OS security model
-		
+
 		WebDriver driver = null;
 		File screenshot = null;
 		ByteArrayOutputStream outputStream = null;
@@ -328,78 +351,235 @@ public class FileMerge {
 		BufferedImage croppedImage = null;
 		ByteArrayOutputStream baos = null;
 		ByteArrayOutputStream outputStreamHTML = null;
+//		workbook.getConverterSetting().setXDpi(320);
+//	    workbook.getConverterSetting().setYDpi(320);
+	    
 		for(int count =0; count<sheetCount;count++) {			
 			com.spire.xls.Worksheet worksheet = workbook.getWorksheets().get(count);
-			
+			File pngFile = null;
 			switch (worksheet.getName()) {
-			case "sheet1":
+			case "SOFC":
 				
 				options = new HTMLOptions();	
 				outputStreamHTML = new ByteArrayOutputStream();
 //				sheet.saveToHtml(outputStreamHTML, options);
-//				worksheet.saveToHtml(zipDirName+"sheet1.html", options);
+				worksheet.saveToHtml("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOFCHtml.html", options);				
+				
+//				worksheet.saveToImage("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOFCExcelToPng.png");
+				
+//				worksheet.saveToImage("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOFCRangeImageWithRange.png",5, 1, 27, 2);
 				
 //				worksheet.saveToHtml(outputStreamHTML, options);
 //				uploadFile("sheet1.html", outputStreamHTML);
 				try {
 					driver = new ChromeDriver(options1);
-					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet1.html");
+//					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet1.html");
+					driver.get("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\demo1.html");
 					driver.manage().window().maximize();
-				} catch (Exception e) {
+				} catch (Exception e) { 
 					System.out.println("Exception Message:-- "+e.getMessage());
 					e.printStackTrace();
 				}
 						        
 		        // Get the entire page screenshot
-		        screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-		        outputStream = new ByteArrayOutputStream();
-		        FileUtils.copyFile(screenshot, outputStream);
-		        isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
+				WebElement findElement = driver.findElement(By.tagName("table"));
+//				WebElement findElement = driver.findElement(By.xpath("/html/body/table/tbody/tr[2]/td[1]/div"));
+				
+				
+				Screenshot screenshotHeader = new AShot().coordsProvider(new WebDriverCoordsProvider())
+						.shootingStrategy(ShootingStrategies.viewportPasting(1000)).takeScreenshot(driver, findElement);
+			    try {
+			        ImageIO.write(screenshotHeader.getImage(),"png", 
+			        		new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\demoHtmlToImage1.png"));
+			    } catch (IOException e) {
+			        e.printStackTrace();
+			    }
+//		        screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+//				
+//		        outputStream = new ByteArrayOutputStream();
+//		        FileUtils.copyFile(screenshot, outputStream);
+//		        isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
+//		        
+//		        image = ImageIO.read(isFromFirstData);
+//		        croppedImage = image.getSubimage(rect.getX(), 50, rect.getWidth(), rect.getHeight()-40);		
 		        
-		        image = ImageIO.read(isFromFirstData);
-		        croppedImage = image.getSubimage(5, 45, 520, 500);		        
-		        baos = new ByteArrayOutputStream();;
-		        ImageIO.write(croppedImage, "png", baos);
+		        pngFile = new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\demo1.png");
+				ImageIO.write(screenshotHeader.getImage(), "png", pngFile);
+					
+//		        baos = new ByteArrayOutputStream();
+//		        ImageIO.write(image, "png", baos);
 		        
-		        imageOutputStreamMap.put("sheet_1_image", baos);
+		        imageOutputStreamMap.put("sheet_1_image", screenshotHeader.getImage());
 				
 				break;
-			case "sheet2":
+			case "SOO":
 				
 				options = new HTMLOptions();	
 				outputStreamHTML = new ByteArrayOutputStream();
 //				sheet.saveToHtml(outputStreamHTML, options);
-//				worksheet.saveToHtml("C:\\tmp\\Financial_Report\\sheet2.html", options);
+				worksheet.saveToHtml("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOOHtml.html", options);
+				
+						        
+				worksheet.saveToImage("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOOExcelToPng.png");
 //				worksheet.saveToHtml(outputStreamHTML, options);
 //				uploadFile("sheet2.html", outputStreamHTML);
 				try {
 					driver = new ChromeDriver(options1);
-					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet2.html");
+//					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet2.html");
+					driver.get("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOOHtml.html");
 					driver.manage().window().maximize();
 				} catch (Exception e) {
 					System.out.println("Exception Message:-- "+e.getMessage());
 					e.printStackTrace();
 				}
-						        
-		        screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-		        outputStream = new ByteArrayOutputStream();
-		        try {
-					FileUtils.copyFile(screenshot, outputStream);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		        isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
-		        image = ImageIO.read(isFromFirstData);		                
+						
+				findElement = driver.findElement(By.tagName("table"));
+				
+				screenshotHeader = new AShot().coordsProvider(new WebDriverCoordsProvider()).shootingStrategy(ShootingStrategies.viewportPasting(100)).takeScreenshot(driver, findElement);
+			    try {
+			        ImageIO.write(screenshotHeader.getImage(),"png", new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOOHtmlToImage.png"));
+			    } catch (IOException e) {
+			        e.printStackTrace();
+			    }
+			    
+			    pngFile = new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOO.png");
+				ImageIO.write(screenshotHeader.getImage(), "png", pngFile);
+//		        screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+//		        outputStream = new ByteArrayOutputStream();
+//		        try {
+//					FileUtils.copyFile(screenshot, outputStream);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//		        isFromFirstData = new ByteArrayInputStream(((ByteArrayOutputStream) outputStream).toByteArray());
+//		        image = ImageIO.read(isFromFirstData);		                
+//		        
+//		        croppedImage = image.getSubimage(5, 50, 530, 510);
+//		        
+//		        pngFile = new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOO.png");
+//				ImageIO.write(croppedImage, "png", pngFile);
+//		        baos = new ByteArrayOutputStream();
 		        
-		        croppedImage = image.getSubimage(5, 50, 530, 510);
-		        
-		        baos = new ByteArrayOutputStream();;
-		        ImageIO.write(croppedImage, "png", baos);
-		        imageOutputStreamMap.put("sheet_2_image", baos);
+//		        ImageIO.write(croppedImage, "png", baos);
+			    
+		        imageOutputStreamMap.put("sheet_2_image", screenshotHeader.getImage());
+				break;
+				
+			case "SCNA":
+				
+//				options = new HTMLOptions();	
+//				outputStreamHTML = new ByteArrayOutputStream();
+////				sheet.saveToHtml(outputStreamHTML, options);
+//				worksheet.saveToHtml("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SCNA.html", options);
+//				worksheet.saveToImage("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SCNAExcelToPng.png");
+////				worksheet.saveToHtml(outputStreamHTML, options);
+////				uploadFile("sheet2.html", outputStreamHTML);
+//				try {
+//					driver = new ChromeDriver(options1);
+//					driver.get("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SCNA.html");
+//					driver.manage().window().maximize();
+//				} catch (Exception e) {
+//					System.out.println("Exception Message:-- "+e.getMessage());
+//					e.printStackTrace();
+//				}
+//						
+//				findElement = driver.findElement(By.tagName("table"));
+//				
+//				screenshotHeader = new AShot().coordsProvider(new WebDriverCoordsProvider()).shootingStrategy(ShootingStrategies.viewportPasting(100)).takeScreenshot(driver, findElement);
+//			    try {
+//			        ImageIO.write(screenshotHeader.getImage(),"png", new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SCNAImage.png"));
+//			    } catch (IOException e) {
+//			        e.printStackTrace();
+//			    }
+//			    			    
+//		        imageOutputStreamMap.put("sheet_3_image", screenshotHeader.getImage());
+				break;
+			case "SOI":
+				
+//				options = new HTMLOptions();	
+//				outputStreamHTML = new ByteArrayOutputStream();
+////				sheet.saveToHtml(outputStreamHTML, options);
+//				worksheet.saveToHtml("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOI.html", options);
+//				worksheet.saveToImage("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOIExcelToPng.png");
+////				worksheet.saveToHtml(outputStreamHTML, options);
+////				uploadFile("sheet2.html", outputStreamHTML);
+//				try {
+//					driver = new ChromeDriver(options1);
+////					driver.get("https://seamlessserver.s3.amazonaws.com/signinlogo/fsimages/sheet2.html");
+//					driver.get("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOI.html");
+//					driver.manage().window().maximize();
+//				} catch (Exception e) {
+//					System.out.println("Exception Message:-- "+e.getMessage());
+//					e.printStackTrace();
+//				}
+//						
+//				findElement = driver.findElement(By.tagName("table"));
+//				
+//				screenshotHeader = new AShot().coordsProvider(new WebDriverCoordsProvider()).shootingStrategy(ShootingStrategies.viewportPasting(100)).takeScreenshot(driver, findElement);
+//			    try {
+//			        ImageIO.write(screenshotHeader.getImage(),"png", new File("C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\Excel File\\SOIImage.png"));
+//			    } catch (IOException e) {
+//			        e.printStackTrace();
+//			    }
+//			    			    
+//		        imageOutputStreamMap.put("sheet_4_image", screenshotHeader.getImage());
 				break;
 			}
 		}
 		
+		return imageOutputStreamMap;
+	}
+	
+	public static Map<String, InputStream> captureImageFromExcelAspose(XSSFWorkbook workbookFile) throws Exception {
+
+		Map<String, InputStream> imageOutputStreamMap = new HashMap<String, InputStream>();
+		
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		workbookFile.write(bos);
+		byte[] barray = bos.toByteArray();
+		InputStream is = new ByteArrayInputStream(barray);
+		Workbook workbook = new Workbook(is);
+		workbook.calculateFormula();
+		
+		Style defaultStyle = workbook.getDefaultStyle();
+
+		defaultStyle.getFont().setName("sans-serif");
+		defaultStyle.getFont().setSize(10);
+		defaultStyle.setTextWrapped(true);
+		defaultStyle.getFont().setCharset(0);
+		workbook.setDefaultStyle(defaultStyle);
+		
+		workbook.getWorksheets().get(0).getPageSetup().setPrintArea("A5:A27:B5:B27");
+		workbook.getWorksheets().get(0).getPageSetup().setLeftMargin(0);
+		workbook.getWorksheets().get(0).getPageSetup().setRightMargin(0);
+		workbook.getWorksheets().get(0).getPageSetup().setTopMargin(0);
+		workbook.getWorksheets().get(0).getPageSetup().setBottomMargin(0);
+		
+		ImageOrPrintOptions options = new ImageOrPrintOptions();
+		options.setOnePagePerSheet(true);
+		options.setImageType(ImageType.EMF);
+		options.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		options.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		options.setHorizontalResolution(300);
+		options.setVerticalResolution(300);
+		options.setTiffCompression(TiffCompression.COMPRESSION_LZW);
+		options.setQuality(100);
+		options.setCheckWorkbookDefaultFont(true);
+		options.setDefaultFont("sans-serif");
+		
+		SheetRender sr = new SheetRender(workbook.getWorksheets().get(0), options);
+//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.bmp");
+//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.emf");
+//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.png");
+//		sr.toImage(0, "C:\\Users\\RaviKumar(JAI)\\OneDrive - Formidium Corp\\Desktop\\output.jpeg");
+		
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		sr.toImage(0, outStream);
+		System.out.println("Done");
+		
+		InputStream isFromFirstData = new ByteArrayInputStream(outStream.toByteArray()); 
+		imageOutputStreamMap.put("image_sheet_1", isFromFirstData);
 		return imageOutputStreamMap;
 	}
 	
